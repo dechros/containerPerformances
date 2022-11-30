@@ -12,7 +12,7 @@
 #include <vector>
 #include <list>
 
-#define TEST_SIZE 5000
+#define TEST_SIZE 1000
 
 std::vector<int> testVector;
 std::list<int> testList;
@@ -22,12 +22,18 @@ int testValue = 0;
 
 unsigned long timeMicroSecFirst = 0;
 unsigned long timeMicroSecLast = 0;
+
 unsigned long timeIntervalVectorFill = 0;
 unsigned long timeIntervalArrayFill = 0;
 unsigned long timeIntervalListFill = 0;
+
 unsigned long timeIntervalVectorAccess = 0;
 unsigned long timeIntervalArrayAccess = 0;
 unsigned long timeIntervalListAccess = 0;
+
+unsigned long timeIntervalVectorInsert = 0;
+unsigned long timeIntervalArrayInsert = 0;
+unsigned long timeIntervalListInsert = 0;
 
 /**
  * @brief Setup function that works only when the ECU is restarted.
@@ -85,15 +91,36 @@ void setup()
     timeMicroSecLast = micros();
     timeIntervalArrayAccess = timeMicroSecLast - timeMicroSecFirst; /* Calculate the eclapsed time to access the array. */
 
-    timeMicroSecFirst = micros();                   /* Get the time before accessing the list. */
-    std::list<int>::iterator it = testList.begin(); /* We need iterator to access the required element in a list. */
-    for (int i = 0; i < TEST_SIZE; i++)             /* Get the elements of the test list. */
+    timeMicroSecFirst = micros();                                                    /* Get the time before accessing the list. */
+    for (std::list<int>::iterator it = testList.begin(); it != testList.end(); it++) /* Get the elements of the test list. */
     {
         testValue = *it;
-        it++;
     }
     timeMicroSecLast = micros();
     timeIntervalListAccess = timeMicroSecLast - timeMicroSecFirst; /* Calculate the eclapsed time to access the list. */
+
+    /**
+     * @note Test time requirements of inserting for different type of storages.
+     */
+
+    timeMicroSecFirst = micros();       /* Get the time before inserting into the vector. */
+    for (int i = 0; i < TEST_SIZE; i++) /* Insert the elements into the test vector. */
+    {
+        std::vector<int>::iterator itVec = testVector.begin() + TEST_SIZE / 2;
+        testVector.insert(itVec, i);
+    }
+    timeMicroSecLast = micros();
+    timeIntervalVectorInsert = timeMicroSecLast - timeMicroSecFirst; /* Calculate the eclapsed time to insert into the vector. */
+
+    timeMicroSecFirst = micros();       /* Get the time before inserting into the list. */
+    for (int i = 0; i < TEST_SIZE; i++) /* Insert the elements into to the test list. */
+    {
+        std::list<int>::iterator itList = testList.begin();
+        std::advance(itList, TEST_SIZE / 2);
+        testList.insert(itList, i);
+    }
+    timeMicroSecLast = micros();
+    timeIntervalListInsert = timeMicroSecLast - timeMicroSecFirst; /* Calculate the eclapsed time to insert into the list. */
 
     /**
      * @note Print the results.
@@ -105,16 +132,22 @@ void setup()
     Serial.println("Vector access time (uS) : " + String(timeIntervalVectorAccess));
     Serial.println("Array access time (uS) : " + String(timeIntervalArrayAccess));
     Serial.println("List access time (uS) : " + String(timeIntervalListAccess));
+    Serial.println("Vector insert time (uS) : " + String(timeIntervalVectorInsert));
+    Serial.println("List insert time (uS) : " + String(timeIntervalListInsert));
 
     /**
      * @note Here is an example result of calculations:
-     *  
-     * Vector filling time (uS) : 2656
-     * Array filling time (uS) : 105
-     * List filling time (uS) : 113364
-     * Vector access time (uS) : 71
-     * Array access time (uS) : 67
-     * List access time (uS) : 258
+     *
+     * Vector filling time (uS) : 485
+     * Array filling time (uS) : 28
+     * List filling time (uS) : 12474
+     *
+     * Vector access time (uS) : 21
+     * Array access time (uS) : 17
+     * List access time (uS) : 38
+     *
+     * Vector insert time (uS) : 168518
+     * List insert time (uS) : 30847
      */
 }
 
