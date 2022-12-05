@@ -1,5 +1,5 @@
-# containerPerformances
-This project is a test to calculate differences between different storage types.
+# dataStructurePerformances
+This project is a test to calculate differences between different data structure types.
 The example test result is;
 
 Vector filling time (uS) : 485
